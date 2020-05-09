@@ -12,12 +12,8 @@ import 'package:provider/provider.dart';
 class HomePlate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Home(
-          screen_width: MediaQuery.of(context).size.width - 40,
-        ),
-      ),
+    return Home(
+      screen_width: MediaQuery.of(context).size.width,
     );
   }
 }
@@ -32,10 +28,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> with TickerProviderStateMixin {
-  AnimationController _moveing_gan_controller;
-
-  Animation<double> _movwing_gan_value;
-
   AnimationController _moveing_object_controller;
 
   Animation<double> _movwing_object_value;
@@ -48,6 +40,8 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   /* var objectPositionX;
   var objectPositionY;*/
+
+  Offset _offset;
 
   GlobalKey _object_key = GlobalKey();
 
@@ -107,7 +101,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   @override
   void initState() {
     // TODO: implement initState
-    _bulet_moveing_animation_operation(widget.screen_width);
+    //_bulet_moveing_animation_operation(widget.screen_width);
 
     _moveing_object_animation(widget.screen_width - 80);
     super.initState();
@@ -128,7 +122,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     // TODO: implement dispose
     super.dispose();
 
-    _moveing_gan_controller.dispose();
+    //_moveing_gan_controller.dispose();
     //_moveing_gan_controller.dispose();
     _moveing_object_controller.dispose();
   }
@@ -200,35 +194,66 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   moveing_bulet(ShootingProvider provider) {
     return Positioned(
-        bottom: 50,
-        left: _movwing_gan_value.value,
-        child: InkWell(
-          onTap: () {
-            if (provider.position == null) {
-              provider.set_postion(0);
-            } else {
-              provider.set_postion(provider.position + 1);
-            }
+      bottom: 10,
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 20, right: 30),
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              height: 150,
+              child: GestureDetector(
+                onHorizontalDragStart: (start) {
+                  print("Startttt  ${start.globalPosition}");
 
-            setState(() {
-              _bulet.removeAt(bulet_number - 1);
+                  setState(() {
+                    _offset = start.globalPosition;
+                  });
+                },
+                onHorizontalDragUpdate: (update) {
+                  print("Startttt  ${update.globalPosition}");
 
-              bulet_number = bulet_number - 1;
-
-              _moveing_bulet_list.add(new MoveingBulet(
-                left: _movwing_gan_value.value,
-                top: MediaQuery.of(context).size.height - 100,
-                // postion: provider.position,
-                removeBulet: remove_bulet,
-              ));
-            });
-          },
-          child: Image(
-            image: AssetImage("Img/ship.png"),
-            width: 40,
-            height: 40,
+                  setState(() {
+                    _offset = update.globalPosition;
+                  });
+                },
+              ),
+            ),
           ),
-        ));
+          Positioned(
+              bottom: 20,
+              // right: 20,
+              left: _offset == null ? 20 : _offset.dx,
+              child: InkWell(
+                onTap: () {
+                  if (provider.position == null) {
+                    provider.set_postion(0);
+                  } else {
+                    provider.set_postion(provider.position + 1);
+                  }
+
+                  setState(() {
+                    _bulet.removeAt(bulet_number - 1);
+
+                    bulet_number = bulet_number - 1;
+
+                    _moveing_bulet_list.add(new MoveingBulet(
+                      left: _offset==null ? 20.0 : _offset.dx,
+                      top: MediaQuery.of(context).size.height - 100,
+                      // postion: provider.position,
+                      removeBulet: remove_bulet,
+                    ));
+                  });
+                },
+                child: Image(
+                  image: AssetImage("Img/ship.png"),
+                  width: 40,
+                  height: 40,
+                ),
+              )),
+        ],
+      ),
+    );
   }
 
   remove_bulet(position) {
@@ -265,7 +290,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
     );
   }
 
-  void _bulet_moveing_animation_operation(screen_width) {
+/*  void _bulet_moveing_animation_operation(screen_width) {
     _moveing_gan_controller =
         AnimationController(vsync: this, duration: Duration(seconds: 3));
     _movwing_gan_value = Tween<double>(begin: 0, end: screen_width)
@@ -282,12 +307,12 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
           });
 
     _moveing_gan_controller.forward();
-  }
+  }*/
 
   void _moveing_object_animation(screen_width) {
     _moveing_object_controller =
         AnimationController(vsync: this, duration: Duration(seconds: 3));
-    _movwing_object_value = Tween<double>(begin: screen_width, end: 0)
+    _movwing_object_value = Tween<double>(begin: 0, end: screen_width - 40)
         .animate(_moveing_object_controller)
           ..addListener(() {
             setState(() {});

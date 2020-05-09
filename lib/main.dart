@@ -4,6 +4,7 @@ import 'package:flutterbubblegame/src/Provider/ShootingProvider.dart';
 import 'package:provider/provider.dart';
 
 void main() {
-  runApp(ChangeNotifierProvider<ShootingProvider>(create:(_)=>ShootingProvider(),child: MaterialApp(home : HomePlate())));
+  runApp(ChangeNotifierProvider<ShootingProvider>(
+      create: (_) => ShootingProvider(),
+      child: MaterialApp(home: HomePlate())));
 }
-
